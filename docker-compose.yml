@@ -1,0 +1,37 @@
+version: '3'
+services:
+  datascience:
+    image: 'yaronv/ds:latest'
+    working_dir: /home/ds/
+    entrypoint: ./run_lab.sh
+    stdin_open: true
+    tty: true
+    ports:
+      - '8888:8888'
+      - '6006:6006'
+      - '9090:9090'
+    volumes:
+      - './notebooks:/home/ds/notebooks/'
+      - './resources:/home/ds/resources/'
+      - './projects:/home/ds/projects/'
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    environment:
+      - node.name=elasticsearch1
+      - cluster.name=docker-cluster
+      - cluster.initial_master_nodes=elasticsearch1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+    ulimits:
+      nproc: 65535
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.4.0
+    ports:
+      - "5601:5601"
